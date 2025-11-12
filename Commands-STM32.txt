@@ -1,0 +1,21 @@
+## BUILD ##
+
+# UpDownFragClassA #
+cmake -S . -B ./build -DAPP_NAME=UpDownFragClassA -DL2_STACK=semtech_4.4.7 -DPLATFORM=B-L072Z-LRWAN1 \
+-DFULLSDK_DR=5 -DLORAWAN_DEVEUI=70B3D57ED00734B9 -DLORAWAN_APPEUI=0000000000000000 -DLORAWAN_APPKEY=CB4FC1FF4DCD490A0D4454F0B4EE30EE \
+-DTOOLCHAIN=gcc-arm-none -DTARGET=m0plus \
+-DEXTENSION_API=template -DTEMPLATE_ID=ipv6udp \
+-DFULLSDK_VERSION=development \
+-DDEBUG_ENABLED=ON -DTRACE_ENABLED=ON && make -C ./build
+
+## FLASHING ##
+
+OPENOCD_TARGET=stm32l0.cfg BIN_FILE=build/gcc-arm-none/m0plus/UpDownFragClassA.bin make -C openocd/ flash
+
+## ERASING ##
+
+OPENOCD_TARGET=stm32l0.cfg make -C openocd/ erase
+
+## DEBUGGING ##
+
+OPENOCD_TARGET=stm32l0.cfg make -C openocd/ debug

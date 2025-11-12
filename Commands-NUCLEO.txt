@@ -1,0 +1,33 @@
+## BUILD ##
+
+# ATModem #
+cmake -S . -B ./build "-DPLATFORM=STM32L476RG-Nucleo",
+"-DTARGET=m4",
+"-DL2_STACK=semtech_4.4.7",
+"-DTOOLCHAIN=gcc-arm-none",
+"-DDEBUG_ENABLED=ON",
+"-DTRACE_ENABLED=ON",
+"-DFULLSDK_VERSION=development",
+"-DEXTENSION_API=template",
+"-DTEMPLATE_ID=ipv6udp",
+"-DLORAWAN_APPKEY=CB:4F:C1:FF:4D:CD:49:0A:0D:44:54:F0:B4:EE:30:EE",
+"-DLORAWAN_APPEUI=00:00:00:00:00:00:00:00",
+"-DLORAWAN_DEVEUI=70:B3:D5:7E:D0:07:34:B9",
+"-DFULLSDK_DR=5",
+"-DAPP_NAME=ATModem"
+"-DDEBUG_ENABLED=ON"&& make -C ./build
+
+## FLASHING ##
+
+OPENOCD_TARGET=stm32l4x.cfg BIN_FILE=build/gcc-arm-none/m4/ATModem.bin make -C openocd/ flash
+
+## ERASING ##
+
+OPENOCD_TARGET=stm32l4x.cfg make -C openocd/ erase
+
+## DEBUGGING ##
+
+OPENOCD_TARGET=stm32l4x.cfg make -C openocd/ debug
+
+## UDP-Client Device ##
+python3 -m device --template device/compression_rules.bin  --dev-eui 70:B3:D5:7E:D0:07:34:B9 --app-eui 00:00:00:00:00:00:00:00  --app-key CB:4F:C1:FF:4D:CD:49:0A:0D:44:54:F0:B4:EE:30:EE --ipv6-dev-prefix 5454:0000:0000:0000 --ipv6-dev-iid 0000:0000:0000:0002  --ipv6-app-prefix abcd:0000:0000:0000 --ipv6-app-iid 0000:0000:0000:0001  --ipv6-dev-port 33333 --ipv6-app-port 22222
