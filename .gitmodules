@@ -1,9 +1,9 @@
-[submodule "examples"]
-	path = examples
-	url = https://gitlab.com/winet-schc/examples
-[submodule "full-sdk-delivery"]
-	path = full-sdk-delivery
-	url = https://gitlab.com/winet-schc/full-sdk-delivery
 [submodule "openschc"]
 	path = openschc
 	url = https://github.com/openschc/openschc
+[submodule "examples"]
+	path = examples
+	url = https://gitlab.com/winet-schc/examples.git
+[submodule "full-sdk-delivery"]
+	path = full-sdk-delivery
+	url = https://gitlab.com/winet-schc/full-sdk-delivery.git
