@@ -7,3 +7,6 @@
 [submodule "full-sdk-delivery"]
 	path = full-sdk-delivery
 	url = git@gitlab.com:lab-schc/sdk/full-sdk-delivery.git
+[submodule "openschc"]
+	path = openschc
+	url = https://github.com/openschc/openschc
