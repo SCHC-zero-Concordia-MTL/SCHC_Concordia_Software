@@ -72,7 +72,7 @@ def recv_data(sock):
             continue
 
         dev_eui = binascii.hexlify(msg[2]).decode().upper()
-        if not dev_eui in app_id:
+        if dev_eui not in app_id:
             print ("device unknown", dev_eui)
             continue
 
@@ -157,7 +157,7 @@ def get_from_ttn():
     print (fromGW)
 
     downlink = None
-    if "uplink_message" in fromGW:
+    if "uplink_message" in fromGW and "frm_payload" in fromGW["uplink_message"]:
 
         payload = base64.b64decode(fromGW["uplink_message"]["frm_payload"])
         #downlink = forward_data(payload)
