@@ -15,6 +15,8 @@ from flask import Response
 
 import requests
 
+from constants import US915, DataRates
+
 TTN_Downlink_Key = "NNSXS.PQBBC2TARHN6XXNESIYCG4JM2DO4PSHF45FWLYY.MFXGU63UKOPV5FYFXHX4KWA7XLF347Z75W6Q6DHWHCNVDEOGMMLA"
 
 chirpstack_server = "http://outils.plido.net:8080"
@@ -26,6 +28,7 @@ sock_r.bind(("0.0.0.0",12345))
 sock_w = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 openschc_port = 33033
 
+# The following Spreading factor MTU is for upstream traffic (DR0 to DR3) without ADR
 SF_MTU = [None, #0
           None, #1
           None, #2
@@ -33,12 +36,12 @@ SF_MTU = [None, #0
           None, #4
           None, #5
           None, #6
-          250,  #7
-          250,  #8
-          123,  #9
-          59,   #10
-          59,   #11
-          59    #12
+          US915.MTU_M[DataRates.DR3],  #7
+          US915.MTU_M[DataRates.DR2],  #8
+          US915.MTU_M[DataRates.DR1],  #9
+          US915.MTU_M[DataRates.DR0],   #10
+          None,   #11
+          None    #12
           ]
 
 """
@@ -163,7 +166,7 @@ def get_from_ttn():
             1 : 1, # Techo LoRaWAN
             2 : binascii.unhexlify(fromGW["end_device_ids"]["dev_eui"]),
             3 : SF_MTU[fromGW["uplink_message"]["settings"]["data_rate"]["lora"]["spreading_factor"]],
-            4 : fromGW["uplink_message"]["f_port"].to_bytes(1, byteorder="big") + payload,
+            4 : fromGW["uplink_message"]["f_port"].to_bytes(1, byteorder="big") + payload, # This is essentially the LoRaWAN frame
 
             -1: fromGW["uplink_message"]["settings"]["data_rate"]["lora"]["spreading_factor"],
             -2: fromGW["uplink_message"]["f_port"]   
