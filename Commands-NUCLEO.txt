@@ -36,4 +36,4 @@ OPENOCD_TARGET=stm32l4x.cfg make -C openocd/ erase
 OPENOCD_TARGET=stm32l4x.cfg make -C openocd/ debug
 
 ## UDP-Client Device ##
-python3 -m device --template device/compression_rules.bin  --dev-eui 70:B3:D5:7E:D0:07:34:B9 --app-eui 00:00:00:00:00:00:00:00  --app-key CB:4F:C1:FF:4D:CD:49:0A:0D:44:54:F0:B4:EE:30:EE --ipv6-dev-prefix 5454:0000:0000:0000 --ipv6-dev-iid 0000:0000:0000:0002  --ipv6-app-prefix abcd:0000:0000:0000 --ipv6-app-iid 0000:0000:0000:0001  --ipv6-dev-port 33333 --ipv6-app-port 22222 --dev-region=US915
+python3 -m device --template device/compression_rules.bin  --dev-eui 70:B3:D5:7E:D0:07:34:B9 --app-eui 00:00:00:00:00:00:00:00  --app-key CB:4F:C1:FF:4D:CD:49:0A:0D:44:54:F0:B4:EE:30:EE --ipv6-dev-prefix 5454:0000:0000:0000 --ipv6-dev-iid 0000:0000:0000:0002  --ipv6-app-prefix abcd:0000:0000:0000 --ipv6-app-iid 0000:0000:0000:0001  --ipv6-dev-port 33333 --ipv6-app-port 22222 --dev-region=US915 --frag-profile device/rule_fragmentation_downlink_21.bin device/rule_fragmentation_uplink_20.bin --payload-len 225
