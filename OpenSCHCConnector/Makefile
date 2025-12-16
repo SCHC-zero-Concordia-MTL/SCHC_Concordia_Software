@@ -1,7 +1,7 @@
 VENV=venv
 PYTHON_PATH=$(VENV)/bin/python3
 PIP_PATH=$(VENV)/bin/pip3
-APP_NAME=connector
+APP_NAME=fullsdk_connector
 .PHONY: all init clean install run
 
 all: init install run

@@ -1,12 +1,14 @@
 # import socket programming library
 import socket
+import time
 import base64
 import binascii
+#from turtle import down
 import cbor2 as cbor
 import json
 
 # import thread module
-from _thread import * # noqa: F403 disables Ruff warning
+from _thread import *
 import threading
 
 from flask import Flask
@@ -17,18 +19,20 @@ import requests
 
 from constants import US915, DataRates
 
-TTN_Downlink_Key = "NNSXS.PQBBC2TARHN6XXNESIYCG4JM2DO4PSHF45FWLYY.MFXGU63UKOPV5FYFXHX4KWA7XLF347Z75W6Q6DHWHCNVDEOGMMLA"
+TTN_Downlink_Key = "<key>"
 
-chirpstack_server = "http://outils.plido.net:8080"
-chirpstack_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5X2lkIjoiMzU2NGEwNTEtYjIzNS00YTdlLThkZjAtZWY5MjBjYzk2MTYxIiwiYXVkIjoiYXMiLCJpc3MiOiJhcyIsIm5iZiI6MTY2NTA3NjEyMywic3ViIjoiYXBpX2tleSJ9.w5Ru_q7GqmU1A8YyBXb8iWsClgaDNEOs1CzABLtEvgw"
+chirpstack_server = "http://url:port"
+chirpstack_key = "<key>" # openschc-fsdk
 
+# sock for Reading (downlink handle): get packet and post to LNS
 sock_r = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock_r.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock_r.bind(("0.0.0.0",12345))
 
+# sock for Writing (uplink handle): send packet to core.py
 sock_w = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 openschc_port = 33033
 
-# The following Spreading factor MTU is for upstream traffic (DR0 to DR3) without ADR
 SF_MTU = [None, #0
           None, #1
           None, #2
@@ -59,9 +63,9 @@ Structure of the exchange, a CBOR structure
 
 """
 
-
+# manage downlink
 def recv_data(sock):
-    print ("starting listening")
+    print ("Starting listening")
     while True:
         data, addr = sock_r.recvfrom(2000)
         print (">>>", binascii.hexlify(data))
@@ -86,6 +90,8 @@ def recv_data(sock):
         content = payload[1:]
 
         if app_id[dev_eui][0] == 'ttn':
+ 
+
             print (">>>>", binascii.hexlify(content))
 
             downlink_msg = {
@@ -119,7 +125,7 @@ def recv_data(sock):
             answer = {
                 "deviceQueueItem": {
                     "confirmed": False,
-		            "data": base64.b64encode(content).decode('utf-8'),
+                            "data": base64.b64encode(content).decode('utf-8'),
                     "fPort": fport
                 }
             }
@@ -142,6 +148,7 @@ def recv_data(sock):
 
         else:
             print ("unknown LNS")
+            print (">>>>>>>>>>>>>!!! unknown LNS:", app_id[dev_eui][0])
 
 app_id = {} # contains the mapping between TTN application_id and dev_eui
 
@@ -166,7 +173,7 @@ def get_from_ttn():
             1 : 1, # Techo LoRaWAN
             2 : binascii.unhexlify(fromGW["end_device_ids"]["dev_eui"]),
             3 : SF_MTU[fromGW["uplink_message"]["settings"]["data_rate"]["lora"]["spreading_factor"]],
-            4 : fromGW["uplink_message"]["f_port"].to_bytes(1, byteorder="big") + payload, # This is essentially the LoRaWAN frame
+            4 : fromGW["uplink_message"]["f_port"].to_bytes(1, byteorder="big") + payload,
 
             -1: fromGW["uplink_message"]["settings"]["data_rate"]["lora"]["spreading_factor"],
             -2: fromGW["uplink_message"]["f_port"]   
@@ -188,6 +195,7 @@ def get_from_ttn():
 
 @app.route('/chirpstack', methods=['POST']) 
 def get_from_chirpstack():
+    print("GOT from Chirpstack.")
     fromGW = request.get_json(force=True)
     print (fromGW)
 
@@ -223,6 +231,5 @@ def get_from_chirpstack():
 
 app.run(host="132.205.48.114", port=7002)
 
-
-
 #y.start()
+
