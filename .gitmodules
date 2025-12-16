@@ -1,6 +1,6 @@
 [submodule "openschc"]
 	path = openschc
-	url = https://github.com/SCHC-zero-Concordia-MTL/openschc
+	url = https://github.com/SCHC-zero-Concordia-MTL/openschc.git
 [submodule "examples"]
 	path = examples
 	url = https://gitlab.com/winet-schc/examples.git

@@ -221,7 +221,7 @@ def get_from_chirpstack():
     resp = Response(status=200)
     return resp
 
-app.run(host="0.0.0.0", port=7002)
+app.run(host="132.205.48.114", port=7002)
 
 
 
