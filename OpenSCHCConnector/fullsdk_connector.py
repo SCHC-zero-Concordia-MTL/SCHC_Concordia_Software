@@ -19,7 +19,7 @@ import requests
 
 from constants import US915, DataRates
 
-TTN_Downlink_Key = "<key>"
+TTN_Downlink_Key = ""
 
 chirpstack_server = "http://url:port"
 chirpstack_key = "<key>" # openschc-fsdk
@@ -27,7 +27,7 @@ chirpstack_key = "<key>" # openschc-fsdk
 # sock for Reading (downlink handle): get packet and post to LNS
 sock_r = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock_r.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-sock_r.bind(("0.0.0.0",12345))
+sock_r.bind(("127.0.0.1",12345))
 
 # sock for Writing (uplink handle): send packet to core.py
 sock_w = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -100,7 +100,7 @@ def recv_data(sock):
                     "frm_payload": base64.b64encode(content).decode()
                 }]}
             downlink_url = \
-            "https://eu1.cloud.thethings.network/api/v3/as/applications/" + \
+            "http://132.205.48.114/api/v3/as/applications/" + \
             app_id[dev_eui][1] + "/devices/" +  app_id[dev_eui][2] + "/down/push"
 
             headers = {
@@ -229,7 +229,7 @@ def get_from_chirpstack():
     resp = Response(status=200)
     return resp
 
-app.run(host="132.205.48.114", port=7002)
+app.run(host="", port=7002)
 
 #y.start()
 
