@@ -16,22 +16,36 @@ from flask import request
 from flask import Response
 
 import requests
+import configparser
+import os
+import sys
 
 from constants import US915, DataRates
 
-TTN_Downlink_Key = ""
-
+'''
 chirpstack_server = "http://url:port"
 chirpstack_key = "<key>" # openschc-fsdk
+'''
+config_ini = configparser.ConfigParser()
+config_path = os.path.join(os.getcwd(), "resources", "network.ini")
+success = config_ini.read(config_path)
 
-# sock for Reading (downlink handle): get packet and post to LNS
-sock_r = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock_r.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-sock_r.bind(("127.0.0.1",12345))
+if not success:
+    print(f"Could not successfully read the config file on path {config_path}")
+    sys.exit(1)
+
+http_ip = config_ini["Network"].get("http_ip")
+http_port = config_ini["Network"].getint("http_port")
+bridge_service_ip = config_ini["Network"].get("bridge_service_ip")
+bridge_service_port = config_ini["Network"].getint("bridge_service_port")
+schc_gateway_ip = config_ini["Network"].get("schc_gateway_ip")
+schc_gateway_port = config_ini["Network"].getint("schc_gateway_port")
+ttn_ip = config_ini["Network"].get("ttn_ip")
+ttn_downlink_key = config_ini["Network"].get("ttn_downlink_key")
 
 # sock for Writing (uplink handle): send packet to core.py
-sock_w = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-openschc_port = 33033
+sock_rw = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock_rw.bind((bridge_service_ip, bridge_service_port))
 
 SF_MTU = [None, #0
           None, #1
@@ -67,7 +81,7 @@ Structure of the exchange, a CBOR structure
 def recv_data(sock):
     print ("Starting listening")
     while True:
-        data, addr = sock_r.recvfrom(2000)
+        data, addr = sock_rw.recvfrom(2000)
         print (">>>", binascii.hexlify(data))
         msg = cbor.loads(data)
 
@@ -100,12 +114,12 @@ def recv_data(sock):
                     "frm_payload": base64.b64encode(content).decode()
                 }]}
             downlink_url = \
-            "http://132.205.48.114/api/v3/as/applications/" + \
+            f"http://{ttn_ip}/api/v3/as/applications/" + \
             app_id[dev_eui][1] + "/devices/" +  app_id[dev_eui][2] + "/down/push"
 
             headers = {
                 'Content-Type': 'application/json',
-                'Authorization' : 'Bearer ' + TTN_Downlink_Key
+                'Authorization' : 'Bearer ' + ttn_downlink_key
             }
 
             print (downlink_url)
@@ -117,7 +131,7 @@ def recv_data(sock):
                                 headers=headers)
             print ("downlink sent", x)
 
-        elif app_id[dev_eui][0] == 'chirpstack':
+        elif False:#app_id[dev_eui][0] == 'chirpstack':
             print("chirpstack")
 
             print (">>>>>", binascii.hexlify(content), base64.b64encode(content).decode('utf-8'))
@@ -143,9 +157,6 @@ def recv_data(sock):
             x = requests.post(downlink_url, data = json.dumps(answer), headers=headers)
 
             print(x)
-
-
-
         else:
             print ("unknown LNS")
             print (">>>>>>>>>>>>>!!! unknown LNS:", app_id[dev_eui][0])
@@ -180,7 +191,7 @@ def get_from_ttn():
         }
         print (message)
         print (binascii.hexlify(cbor.dumps(message)))
-        sock_w.sendto(cbor.dumps(message), ("127.0.0.1", openschc_port))
+        sock_rw.sendto(cbor.dumps(message), (schc_gateway_ip, schc_gateway_port))
 
         app_id [fromGW["end_device_ids"]["dev_eui"].upper()] = ["ttn",
                 fromGW["end_device_ids"]["application_ids"]["application_id"],
@@ -193,6 +204,7 @@ def get_from_ttn():
     resp = Response(status=200)
     return resp
 
+'''
 @app.route('/chirpstack', methods=['POST']) 
 def get_from_chirpstack():
     print("GOT from Chirpstack.")
@@ -228,8 +240,8 @@ def get_from_chirpstack():
 
     resp = Response(status=200)
     return resp
-
-app.run(host="", port=7002)
+'''
+app.run(host=http_ip, port=http_port)
 
 #y.start()
 
