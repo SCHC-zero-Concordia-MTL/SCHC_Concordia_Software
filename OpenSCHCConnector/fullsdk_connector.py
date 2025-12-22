@@ -172,11 +172,10 @@ app = Flask(__name__)
 @app.route('/ttn', methods=['POST']) # API V3 current
 def get_from_ttn():
     fromGW = request.get_json(force=True)
-    print (fromGW)
 
     downlink = None
     if "uplink_message" in fromGW and "frm_payload" in fromGW["uplink_message"]:
-
+        print (fromGW)
         payload = base64.b64decode(fromGW["uplink_message"]["frm_payload"])
         #downlink = forward_data(payload)
 
@@ -199,8 +198,11 @@ def get_from_ttn():
                 ]
 
         print (app_id)
-
-
+    else:
+        print("\n--------No uplink frm_payload------->")
+        print(fromGW)
+        print("<-------No uplink frm_payload--------\n")
+    
     resp = Response(status=200)
     return resp
 
