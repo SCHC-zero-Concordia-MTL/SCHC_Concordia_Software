@@ -2,3 +2,4 @@ Errors/
 Success/
 OpenSCHCConnector/venv/
 __pycache__/
+*.ini
